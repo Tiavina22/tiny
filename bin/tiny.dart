@@ -4,16 +4,15 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'dart:convert';
 
-// Pour les couleurs dans le terminal
+// For terminal colors
 import 'package:ansicolor/ansicolor.dart';
 
 void main(List<String> arguments) {
   printTinyAsciiArt();
 
   final parser = ArgParser()
-    ..addFlag('version',
-        abbr: 'v', negatable: false, help: 'Afficher la version')
-    ..addFlag('help', abbr: 'h', negatable: false, help: 'Afficher l\'aide')
+    ..addFlag('version', abbr: 'v', negatable: false, help: 'Display version')
+    ..addFlag('help', abbr: 'h', negatable: false, help: 'Display help')
     ..addCommand('add')
     ..addCommand('list')
     ..addCommand('delete')
@@ -35,7 +34,7 @@ void main(List<String> arguments) {
   switch (argResults.command?.name) {
     case 'add':
       if (argResults.command!.rest.isEmpty) {
-        printError('Veuillez fournir le texte de la note.');
+        printError('Please provide the note text.');
       } else {
         addNote(argResults.command!.rest.join(' '));
       }
@@ -45,50 +44,50 @@ void main(List<String> arguments) {
       break;
     case 'delete':
       if (argResults.command!.rest.isEmpty) {
-        printError('Veuillez fournir l\'ID de la note à supprimer.');
+        printError('Please provide the ID of the note to delete.');
       } else {
         try {
           final id = int.parse(argResults.command!.rest[0]);
           confirmDeletion(id);
         } catch (e) {
-          printError('ID invalide. Veuillez fournir un ID numérique.');
+          printError('Invalid ID. Please provide a numeric ID.');
         }
       }
       break;
     case 'update':
       if (argResults.command!.rest.length < 2) {
-        printError('Veuillez fournir l\'ID de la note et le nouveau texte.');
+        printError('Please provide the ID of the note and the new text.');
       } else {
         try {
           final id = int.parse(argResults.command!.rest[0]);
           final newNote = argResults.command!.rest.sublist(1).join(' ');
           updateNote(id, newNote);
         } catch (e) {
-          printError('ID invalide. Veuillez fournir un ID numérique.');
+          printError('Invalid ID. Please provide a numeric ID.');
         }
       }
       break;
     case 'search':
       if (argResults.command!.rest.isEmpty) {
-        printError('Veuillez fournir le mot-clé de recherche.');
+        printError('Please provide the search keyword.');
       } else {
         searchNotes(argResults.command!.rest.join(' '));
       }
       break;
     default:
-      printError('Commande inconnue. Utilisez --help pour voir les options.');
+      printError('Unknown command. Use --help to see options.');
   }
 }
 
 void printHelp(ArgParser parser) {
-  print('Utilisation :');
+  print('Usage:');
   print(parser.usage);
-  print('Commandes :');
-  print('  add <note>          Ajouter une nouvelle note');
-  print('  list                Afficher toutes les notes');
-  print('  delete <id>         Supprimer une note par son ID');
-  print('  update <id> <note>  Mettre à jour une note par son ID');
-  print('  search <keyword>    Rechercher des notes par mot-clé');
+  print('Commands:');
+  print('  add <note>          Add a new note');
+  print('  list                List all notes');
+  print('  delete <id>         Delete a note by its ID');
+  print('  update <id> <note>  Update a note by its ID');
+  print('  search <keyword>    Search notes by keyword');
 }
 
 void addNote(String note) {
@@ -96,15 +95,15 @@ void addNote(String note) {
   final id = notes.isNotEmpty ? notes.keys.last + 1 : 1;
   notes[id] = note;
   _saveNotes(notes);
-  printSuccess('Note ajoutée avec l\'ID $id.');
+  printSuccess('Note added with ID $id.');
 }
 
 void listNotes() {
   final notes = _loadNotes();
   if (notes.isEmpty) {
-    printWarning('Aucune note disponible.');
+    printWarning('No notes available.');
   } else {
-    print('Notes disponibles :');
+    print('Available notes:');
     notes.forEach((id, note) {
       print('[$id] $note');
     });
@@ -116,20 +115,19 @@ void deleteNote(int id) {
   if (notes.containsKey(id)) {
     notes.remove(id);
     _saveNotes(notes);
-    printSuccess('Note avec l\'ID $id supprimée.');
+    printSuccess('Note with ID $id deleted.');
   } else {
-    printError('Aucune note trouvée avec l\'ID $id.');
+    printError('No note found with ID $id.');
   }
 }
 
 void confirmDeletion(int id) {
-  stdout.write(
-      'Êtes-vous sûr de vouloir supprimer la note avec l\'ID $id ? (y/N) ');
+  stdout.write('Are you sure you want to delete the note with ID $id ? (y/N) ');
   final response = stdin.readLineSync();
   if (response != null && response.toLowerCase() == 'y') {
     deleteNote(id);
   } else {
-    printWarning('Suppression annulée.');
+    printWarning('Deletion canceled.');
   }
 }
 
@@ -138,9 +136,9 @@ void updateNote(int id, String newNote) {
   if (notes.containsKey(id)) {
     notes[id] = newNote;
     _saveNotes(notes);
-    printSuccess('Note avec l\'ID $id mise à jour.');
+    printSuccess('Note with ID $id updated.');
   } else {
-    printError('Aucune note trouvée avec l\'ID $id.');
+    printError('No note found with ID $id.');
   }
 }
 
@@ -149,9 +147,9 @@ void searchNotes(String keyword) {
   final results =
       notes.entries.where((entry) => entry.value.contains(keyword)).toList();
   if (results.isEmpty) {
-    printWarning('Aucune note trouvée contenant le mot-clé "$keyword".');
+    printWarning('No notes found containing the keyword "$keyword".');
   } else {
-    print('Résultats de la recherche pour "$keyword" :');
+    print('Search results for "$keyword" :');
     results.forEach((entry) {
       print('[$entry.key] $entry.value');
     });
@@ -171,13 +169,13 @@ Map<int, String> _loadNotes() {
 
 void _saveNotes(Map<int, String> notes) {
   final file = File('${Platform.environment['HOME']}/notes.json');
-  // Convertir le Map<int, String> en Map<String, String>
+  // Convert Map<int, String> to Map<String, String>
   final jsonMap = notes.map((key, value) => MapEntry(key.toString(), value));
   final jsonString = json.encode(jsonMap);
   file.writeAsStringSync(jsonString);
 }
 
-// Fonctions pour les messages colorés
+// Functions for colored messages
 void printError(String message) {
   var pen = AnsiPen()..red();
   print(pen(message));
@@ -194,6 +192,8 @@ void printSuccess(String message) {
 }
 
 void printTinyAsciiArt() {
+  print(
+      'Tiny is a command-line CLI note manager developed in Dart. It enables users to add, list, delete, update, and search notes stored locally in a JSON file. Each note is identified by a unique ID, providing basic yet effective management of textual information.');
   print('''
  #######   #####   #     #  #     #
     #        #     ##    #   #   #
