@@ -1,0 +1,16 @@
+name: tiny
+description: Tiny is a command-line CLI note manager developed in Dart. It enables users to add, list, delete, update, and search notes stored locally in a JSON file. Each note is identified by a unique ID, providing basic yet effective management of textual information.
+version: 1.0.0
+# repository: https://github.com/my_org/my_repo
+
+environment:
+  sdk: ^3.4.1
+
+# Add regular dependencies here.
+dependencies:
+  ansicolor: ^2.0.2
+  args: ^2.5.0
+  # path: ^1.8.0
+
+dev_dependencies:
+  lints: ^3.0.0
